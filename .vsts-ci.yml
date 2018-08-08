@@ -1,1 +1,76 @@
+resources:
+- repo: self
+queue:
+  name: Hosted 
+  #condition: succeeded()
+  demands: 
+  - msbuild
+  - visualstudio
+  - vstest
+#Parameters: 
+  #solution: '**\*.sln'
+  #connectedServiceName: 'Azure'
+  #WebAppName: 'yaml'
+
+#Your build pipeline references an undefined variable named ‘Parameters.solution’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
+#Your build pipeline references an undefined variable named ‘Parameters.solution’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
+#Your build pipeline references the ‘BuildPlatform’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
+#Your build pipeline references the ‘BuildConfiguration’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
+#Your build pipeline references the ‘BuildConfiguration’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
+#Your build pipeline references the ‘BuildPlatform’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
+#Your build pipeline references the ‘BuildConfiguration’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
+#Your build pipeline references an undefined variable named ‘Parameters.connectedServiceName’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
+#Your build pipeline references an undefined variable named ‘Parameters.WebAppName’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
+steps:
+- task: NuGetToolInstaller@0
+  displayName: Use NuGet 4.4.1
+  inputs:
+    versionSpec: 4.4.1
+
+- task: NuGetCommand@2
+  displayName: NuGet restore
+  inputs:
+    restoreSolution: '**\*.sln'
+
+- task: VSBuild@1
+  displayName: Build solution **\*.sln
+  inputs:
+    solution: '**\*.sln'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)\\"'
+    platform: '$(BuildPlatform)'
+    configuration: '$(BuildConfiguration)'
+
+- task: VSTest@2
+  displayName: VsTest - testAssemblies
+  inputs:
+    testAssemblyVer2: |
+     **\$(BuildConfiguration)\*test*.dll
+     !**\obj\**
+    platform: '$(BuildPlatform)'
+    configuration: '$(BuildConfiguration)'
+
+- task: PublishSymbols@2
+  displayName: Publish symbols path
+  inputs:
+    SearchPattern: '**\bin\**\*.pdb'
+    PublishSymbols: false
+  continueOnError: true
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish Artifact drop
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)'
+
+- task: ArchiveFiles@2
+  displayName: Archive $(build.artifactstagingdirectory)
+  inputs:
+    rootFolderOrFile: '$(build.artifactstagingdirectory)'
+
+- task: AzureRmWebAppDeployment@3
+  displayName: Azure App Service Deploy yaml
+  inputs:
+    azureSubscription: 'Azure'
+    WebAppName: 'yaml'
+    Package: '$(build.artifactstagingdirectory)/**/*.zip'
+
 
