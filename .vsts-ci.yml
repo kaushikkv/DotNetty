@@ -66,11 +66,11 @@ steps:
   inputs:
     rootFolderOrFile: '$(build.artifactstagingdirectory)'
 
-- task: AzureRmWebAppDeployment@3
-  displayName: Azure App Service Deploy yaml
-  inputs:
-    azureSubscription: 'Azure'
-    WebAppName: 'yaml'
-    Package: '$(build.artifactstagingdirectory)/**/*.zip'
+#- task: AzureRmWebAppDeployment@3
+#  displayName: Azure App Service Deploy yaml
+#  inputs:
+#    azureSubscription: 'Azure'
+#    WebAppName: 'yaml'
+#    Package: '$(build.artifactstagingdirectory)/**/*.zip'
 
 
