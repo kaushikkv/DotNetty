@@ -1,7 +1,7 @@
 # Contributing to dotNetty
 dotNetty is a large project and contributions are more than welcome, so thank you for wanting to contribute to dotNetty!
 
----
+---  
 
 ### Checklist before creating a Pull Request
 Submit only relevant commits. We don't mind many commits in a pull request, but they must be relevant as explained below.
